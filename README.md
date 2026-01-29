@@ -35,7 +35,7 @@ This module converts the raw text collected in Task 1 into a searchable vector d
 ## Vector Database Choice: FAISS
 - Why FAISS? I chose FAISS (Facebook AI Similarity Search) as the vector store.
 
--Benefits: 
+- Benefits: 
   * Performance: Extremely fast similarity search for dense vectors.
 
   * Local Storage: It is an open-source library that runs entirely on the local machine, requiring no cloud setup or API costs.
