@@ -13,6 +13,7 @@ This module is responsible for identifying the most relevant knowledge source fo
 
 ## How to Run
 - Navigate to the root directory and run the script via the command line:
+  
   python src/wiki_scraper.py "Your Topic Here"
 
 ## Observations and Challenges
