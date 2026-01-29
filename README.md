@@ -30,16 +30,16 @@ This module converts the raw text collected in Task 1 into a searchable vector d
 
 - Overlapping: I used an overlap of 200 characters.
 
-    -Justification: Overlapping chunks ensure that semantic information is not lost if a key concept or sentence is split across two chunks. It provides "contextual glue" that helps the retrieval process find relevant snippets even if the query matches the boundary of a chunk.
+    - Justification: Overlapping chunks ensure that semantic information is not lost if a key concept or sentence is split across two chunks. It provides "contextual glue" that helps the retrieval process find relevant snippets even if the query matches the boundary of a chunk.
 
 ## Vector Database Choice: FAISS
 - Why FAISS? I chose FAISS (Facebook AI Similarity Search) as the vector store.
 
 -Benefits: 
-    * Performance: Extremely fast similarity search for dense vectors.
+  * Performance: Extremely fast similarity search for dense vectors.
 
-    * Local Storage: It is an open-source library that runs entirely on the local machine, requiring no cloud setup or API costs.
+  * Local Storage: It is an open-source library that runs entirely on the local machine, requiring no cloud setup or API costs.
 
 - Drawbacks:
 
-    * Persistence: Unlike managed databases (like Pinecone), it is an in-memory store. While it can be saved to disk, it doesn't offer built-in cloud synchronization or advanced metadata filtering out of the box.
+  * Persistence: Unlike managed databases (like Pinecone), it is an in-memory store. While it can be saved to disk, it doesn't offer built-in cloud synchronization or advanced metadata filtering out of the box.
