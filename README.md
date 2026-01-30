@@ -106,3 +106,24 @@ I chose the Indic-Conformer-600M-Multilingual hybrid model from AI4Bharat.
 - Test the Transcription: While the server is running, open a separate terminal and run the client test script to verify your setup:
 
       python src/asr_client_test.py
+
+# Task 4: Translation of the Text
+This module handles the conversion of non-English transcriptions (e.g., Tamil or Hindi) into English.
+
+## Implementation Strategy
+- API Provider: I utilized Sarvam AI’s Translation API due to its high performance on Indian regional languages compared to standard global translation models.
+
+- Mechanism: The script performs a REST API call to the sarvam-translate:v1 model, which supports 22 scheduled Indian languages.
+
+- Language Handling: I configured the target_language_code to en-IN. While the source_language_code can be hardcoded for specific tasks (like ta-IN for Tamil), setting it to auto allows the pipeline to remain flexible for different users.
+
+## How to Run
+- Obtain API Key: Sign up at [Sarvam AI](https://dashboard.sarvam.ai/) to get your subscription key.
+
+- Update Script: Open src/sarvam_translator.py and add your key to the api_key variable.
+
+- Test the Module:
+
+      python src/sarvam_translator.py
+
+  
