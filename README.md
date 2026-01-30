@@ -148,3 +148,26 @@ This final module integrates all previous components into a seamless, voice-enab
       python src/main_pipeline.py
   
 - Interact: Once launched, a local Gradio URL (and a public share link if enabled) will be provided. Upload a .m4a or .wav file in Tamil to receive an English grounded response.
+
+# Project Observations
+
+- Hybrid RAG Effectiveness: Utilizing Tavily for broad web sourcing combined with FAISS for local re-ranking created a highly accurate "Dynamic RAG" system. This ensures the LLM receives the top-2 most relevant snippets rather than unrefined, noisy search results.
+
+- Model Synergy: The combination of IndicConformer (ASR) and Sarvam AI (Translation) proved robust for regional languages. Sarvam's specialization in Indian dialects significantly outperformed generic global translation models in preserving linguistic context.
+
+- Latency Trade-offs: The cascaded architecture (ASR → Translation → Retrieval → LLM) provides high accuracy but introduces a "stacking" delay. Each sequential API call adds roughly 0.5 to 1.5 seconds, impacting real-time feel.
+
+- Prompt Grounding: Forcing the LLM (Gemini) to answer strictly based on retrieved context successfully minimized hallucinations, ensuring the chatbot remained a reliable source for factual queries.
+
+# Technical Challenges
+- Audio Stream Corruption: Encountered Illegal Audio-MPEG-Header and synchronization errors when processing raw .m4a and .mp3 files via librosa.
+  
+    - Solution: Implemented a mandatory FFmpeg sanitization gate to re-encode all incoming audio into a standard 16kHz PCM WAV format before model processing.
+
+- API Dependency Conflicts: Mismatched versions between huggingface_hub, transformers, and NeMo caused frequent import crashes (e.g., the ModelFilter and is_offline_mode errors).
+
+    - Solution: Synchronized the virtual environment by pinning specific stable versions of the Hugging Face ecosystem libraries.
+
+- NumPy 2.0 Breaking Changes: The release of NumPy 2.0 caused significant conflicts with NVIDIA NeMo and Numba, resulting in AttributeError and binary incompatibility issues.
+  
+    - Solution: Forced a downgrade to NumPy 1.26.4 (pip install "numpy<2") and pinned the version in requirements.txt to maintain compatibility with the NeMo ASR toolkit.
