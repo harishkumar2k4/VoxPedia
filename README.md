@@ -87,8 +87,7 @@ I chose the Indic-Conformer-600M-Multilingual hybrid model from AI4Bharat.
 
 - Install FFmpeg: (System Requirement):
 
-  - Download: Get the latest "Essentials" build from [Gyan.dev (FFmpeg Windows Builds)]([URL](https://www.gyan.dev/ffmpeg/builds/))
-.
+  - Download: Get the latest "Essentials" build from [Gyan.dev (FFmpeg Windows Builds)](https://www.gyan.dev/ffmpeg/builds/).
 
   - Setup: Extract the folder and update the ffmpeg_path in src/asr_api.py to point to your local executable (e.g., r"C:\ffmpeg-8.0.1-full_build\bin\ffmpeg.exe").
 
