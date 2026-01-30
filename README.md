@@ -133,7 +133,7 @@ This final module integrates all previous components into a seamless, voice-enab
 
 - Configuration:
   
-    - pen src/main_pipeline.py.
+    - Open src/main_pipeline.py.
 
     - Update the following placeholders with your actual keys:
 
