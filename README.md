@@ -14,7 +14,7 @@ This module is responsible for identifying the most relevant knowledge source fo
 ## How to Run
 - Navigate to the root directory and run the script via the command line:
   
-  ''' python src/wiki_scraper.py "Your Topic Here" '''
+      * python src/wiki_scraper.py "Your Topic Here" 
 
 ## Observations and Challenges
 - Observations: I found that while the wikipedia library is efficient, passing specific search queries (e.g., "Python programming language") significantly improves the quality of the retrieved text compared to broad terms.
