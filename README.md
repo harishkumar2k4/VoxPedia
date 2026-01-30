@@ -16,11 +16,6 @@ This module is responsible for identifying the most relevant knowledge source fo
   
       python src/wiki_scraper.py "Your Topic Here" 
 
-## Observations and Challenges
-- Observations: I found that while the wikipedia library is efficient, passing specific search queries (e.g., "Python programming language") significantly improves the quality of the retrieved text compared to broad terms.
-
-- Challenges: The primary challenge was handling DisambiguationErrors. I implemented a nested try-except block to catch these errors and automatically proceed with the first suggested option to ensure the pipeline remains autonomous and doesn't crash on broad queries.
-
 # Task 2: Creating a Vector Database
 
 This module converts the raw text collected in Task 1 into a searchable vector database using LangChain and FAISS.
@@ -48,20 +43,6 @@ This module converts the raw text collected in Task 1 into a searchable vector d
 - Navigate to the root directory and run the script via the command line:
 
       python src/build_vector_db.py data/"Saved .txt file"
-
-## Observations and Challenges
-
-- Observations
-
-  * Semantic Integrity: Using RecursiveCharacterTextSplitter significantly improved retrieval quality compared to basic splitting. By prioritizing natural breaks like paragraphs and sentences, the chunks remained contextually meaningful.
-
-  * Local Embedding Efficiency: The all-MiniLM-L6-v2 model offered a high-performance, zero-cost solution. Running it locally eliminated API latency and simplified the development environment.
-
-- Challenges
-
-  * Context Tuning: Finding the right balance for chunk_size was difficult. I settled on 1000 characters to ensure the top-2 retrieved results provided sufficient detail for the LLM without exceeding its focus window.
-
-  * Character Encoding: I encountered errors when loading files with special characters. This was resolved by forcing utf-8 encoding in the TextLoader to ensure cross-platform compatibility.
 
 # Task 3: Deploying an ASR Model
 
@@ -126,4 +107,44 @@ This module handles the conversion of non-English transcriptions (e.g., Tamil or
 
       python src/sarvam_translator.py
 
+# Task 5 & Bonus Task: Integrated RAG Pipeline & Multimodal UI
+
+This final module integrates all previous components into a seamless, voice-enabled chatbot. It combines real-time Speech-to-Text, Machine Translation, Web-scale Retrieval, and Large Language Models (LLMs) into a single interactive application.
+
+## Implementation Strategy
+- End-to-End Orchestration: The pipeline follows a strictly sequential flow:
+
+    - ASR: Captures Tamil audio via the local FastAPI server.
+
+    - Translation: Converts the transcript to English via Sarvam AI.
+
+    - Search: Queries the live web using the Tavily API.
+
+    - Vector Ranking: Uses FAISS to embed search results and isolate the top-2 most relevant chunks for the query.
+
+    - LLM Reasoning: Passes the query and context to Gemini-2.5-flash-lite for a grounded, factual answer.
+
+- Vector Database Integration: Unlike a static database, this implementation uses a Dynamic Vector Index. By building an in-memory FAISS index on-the-fly for each query, the system can "re-rank" massive web results and provide the LLM with only the most precise context.
+
+- Bonus UI (Gradio): I developed a multimodal "Chat" interface. This allows users to upload or record audio files directly and see the conversation history along with the sources of the information provided.
+
+## How to Run
+- Prerequisites: Ensure your local ASR server (src/asr_api.py) is running on http://127.0.0.1:8000.
+
+- Configuration:
   
+    - pen src/main_pipeline.py.
+
+    - Update the following placeholders with your actual keys:
+
+        - SARVAM_API_KEY
+
+        - GEMINI_API_KEY
+
+        - TAVILY_API_KEY
+
+- Launch the Application:
+
+      python src/main_pipeline.py
+  
+- Interact: Once launched, a local Gradio URL (and a public share link if enabled) will be provided. Upload a .m4a or .wav file in Tamil to receive an English grounded response.
