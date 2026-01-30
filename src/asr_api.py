@@ -19,7 +19,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Load Model
 if os.path.exists(MODEL_PATH):
-    print(f"🚀 Loading model on {device}: {MODEL_PATH}")
+    print(f"Loading model on {device}: {MODEL_PATH}")
     model = nemo_asr.models.EncDecHybridRNNTCTCModel.restore_from(
         restore_path=MODEL_PATH,
         map_location=torch.device(device)
@@ -27,7 +27,7 @@ if os.path.exists(MODEL_PATH):
     model.eval()
     model.change_decoding_strategy(decoder_type='ctc')
 else:
-    print(f"❌ Error: Model not found! Please update MODEL_PATH in the script.")
+    print(f"Error: Model not found! Please update MODEL_PATH in the script.")
 
 @app.post("/transcribe")
 async def transcribe(lang: str = Query(..., description="Language code (e.g., 'hi', 'ta')"), 
@@ -74,7 +74,7 @@ async def transcribe(lang: str = Query(..., description="Language code (e.g., 'h
         return {"status": "success", "transcription": final_text}
 
     except Exception as e:
-        print(f"❌ Error in transcription: {str(e)}")
+        print(f"Error in transcription: {str(e)}")
         return {"status": "error", "message": f"Processing failed: {str(e)}"}
 
     finally:
@@ -84,7 +84,7 @@ async def transcribe(lang: str = Query(..., description="Language code (e.g., 'h
                 try:
                     os.remove(path)
                 except Exception as cleanup_error:
-                    print(f"⚠️ Cleanup error for {path}: {cleanup_error}")
+                    print(f"Cleanup error for {path}: {cleanup_error}")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
