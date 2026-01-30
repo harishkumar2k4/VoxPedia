@@ -26,3 +26,14 @@ IPython==8.27.0
 joblib==1.4.2
 numpy<2
 nemo_toolkit @ git+https://github.com/AI4Bharat/NeMo@nemo-v2
+uvicorn
+fastapi
+gradio
+requests
+sentence-transformers
+faiss-cpu
+google-generativeai
+tavily-python
+numpy
+python-multipart
+inflect
