@@ -59,7 +59,7 @@ def get_gemini_response(prompt):
             response = llm_model.generate_content(prompt)
             return response.text
         except exceptions.ResourceExhausted:
-            print(f"⚠️ Rate limit hit. Waiting 60s (Attempt {i+1}/3)...")
+            print(f"Rate limit hit. Waiting 60s (Attempt {i+1}/3)...")
             time.sleep(60)
         except Exception as e:
             return f"Gemini Error: {str(e)}"
@@ -74,17 +74,17 @@ def process_voice_query(audio_path, lang_code="ta"):
             asr_res = requests.post(ASR_ENDPOINT, files={'file': f}, params={'lang': lang_code})
         
         if asr_res.status_code != 200:
-            return f"❌ Local ASR Error: {asr_res.status_code}. Is your FastAPI server running?", "N/A"
+            return f"Local ASR Error: {asr_res.status_code}. Is your FastAPI server running?", "N/A"
             
         data = asr_res.json()
         raw_text = data.get('transcription', "")
 
         # Safety check: Stop if ASR fails to decode audio
         if not raw_text or not raw_text.strip():
-            return "⚠️ The ASR could not extract any text. Please check audio quality/format.", "N/A"
+            return "The ASR could not extract any text. Please check audio quality/format.", "N/A"
 
     except Exception as e:
-        return f"❌ Connection Error: {str(e)}", "N/A"   
+        return f"Connection Error: {str(e)}", "N/A"   
 
     # Step 2: Translation to English
     print(f"DEBUG: Transcribed text for translation: '{raw_text}'") 
