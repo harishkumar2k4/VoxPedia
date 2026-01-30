@@ -97,12 +97,12 @@ I chose the Indic-Conformer-600M-Multilingual hybrid model from AI4Bharat.
 
   - Direct Download: Navigate to the "Resources (Multilingual)" table and click the "Download" link for the 600M size model (Language Code: multi).
 
-  - Setup: Place the downloaded .nemo file in your project directory and update the MODEL_PATH variable in > src/asr_api.py.
+  - Setup: Place the downloaded .nemo file in your project directory and update the MODEL_PATH variable in src/asr_api.py.
 
-- Start the Server:
+- Start the ASR Server: Open a terminal and run the FastAPI service:
 
       python src/asr_api.py
   
-- Test the Transcription:
+- Test the Transcription: While the server is running, open a separate terminal and run the client test script to verify your setup:
 
       python src/asr_client_test.py
