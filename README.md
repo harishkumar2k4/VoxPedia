@@ -14,7 +14,7 @@ This module is responsible for identifying the most relevant knowledge source fo
 ## How to Run
 - Navigate to the root directory and run the script via the command line:
   
-  python src/wiki_scraper.py "Your Topic Here"
+  ''' python src/wiki_scraper.py "Your Topic Here" '''
 
 ## Observations and Challenges
 - Observations: I found that while the wikipedia library is efficient, passing specific search queries (e.g., "Python programming language") significantly improves the quality of the retrieved text compared to broad terms.
@@ -62,3 +62,23 @@ This module converts the raw text collected in Task 1 into a searchable vector d
   * Context Tuning: Finding the right balance for chunk_size was difficult. I settled on 1000 characters to ensure the top-2 retrieved results provided sufficient detail for the LLM without exceeding its focus window.
 
   * Character Encoding: I encountered errors when loading files with special characters. This was resolved by forcing utf-8 encoding in the TextLoader to ensure cross-platform compatibility.
+
+# Task 3: Deploying an ASR Model
+
+This module deploys a high-performance Automatic Speech Recognition (ASR) service using FastAPI and the NVIDIA NeMo toolkit. It is designed to transcribe multilingual audio input into text.
+
+## Model Choice: IndicConformer-600M
+
+I chose the Indic-Conformer-600M-Multilingual hybrid model from AI4Bharat.
+
+- Benefits: It supports 22 Indian languages and uses a hybrid CTC-RNNT decoding strategy, providing a superior balance between word error rate (WER) and inference speed.
+
+- Implementation: The deployment uses the CTC decoding strategy for faster real-time response.
+
+## Technical Implementation & Optimization
+
+- FastAPI Wrapper: I wrapped the model in a FastAPI server to create a modular microservice. This allows the ASR "engine" to run on a GPU-enabled backend while serving requests from any lightweight frontend.
+
+- Universal Audio Normalization: ASR models are extremely sensitive to audio formats. I implemented a preprocessing layer using librosa and soundfile to ensure all inputs are converted to 16kHz Mono PCM-WAV before inference.
+
+- Direct FFmpeg Transcoding: To handle proprietary or compressed formats like .m4a and .mp3 on Windows, I integrated a subprocess call to the FFmpeg binary. This bypasses Python library limitations and ensures high-fidelity decoding.
