@@ -91,7 +91,13 @@ I chose the Indic-Conformer-600M-Multilingual hybrid model from AI4Bharat.
 
   - Setup: Extract the folder and update the ffmpeg_path in src/asr_api.py to point to your local executable (e.g., r"C:\ffmpeg-8.0.1-full_build\bin\ffmpeg.exe").
 
-- Download Model: Download the .nemo model file and update MODEL_PATH.
+- Download ASR Model:
+
+  - GitHub Repository: Visit the official [AI4Bharat/IndicConformerASR](https://github.com/AI4Bharat/IndicConformerASR) repository.
+
+  - Direct Download: Navigate to the "Resources (Multilingual)" table and click the "Download" link for the 600M size model (Language Code: multi).
+
+  - Setup: Place the downloaded .nemo file in your project directory and update the MODEL_PATH variable in > src/asr_api.py.
 
 - Start the Server:
 
