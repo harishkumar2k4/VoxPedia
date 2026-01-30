@@ -205,3 +205,34 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# --- Virtual Environments ---
+# Common names for the python virtual environment folder
+.venv/
+venv/
+env/
+ENV/
+
+# --- NVIDIA NeMo Specifics ---
+# Ignore locally downloaded .nemo model files and large checkpoints
+*.nemo
+nemo_experiments/
+checkpoints/
+
+# --- Audio/Temporary Processing ---
+# Ignore raw and processed audio files created during pipeline execution
+raw_*.wav
+raw_*.m4a
+fixed_*.wav
+clean_*.wav
+sanitized_*.wav
+
+# --- Python General ---
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
+# --- Search/Vector DB ---
+# Optional: if you don't want to commit your built index
+faiss_index/
