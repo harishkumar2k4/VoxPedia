@@ -82,3 +82,17 @@ I chose the Indic-Conformer-600M-Multilingual hybrid model from AI4Bharat.
 - Universal Audio Normalization: ASR models are extremely sensitive to audio formats. I implemented a preprocessing layer using librosa and soundfile to ensure all inputs are converted to 16kHz Mono PCM-WAV before inference.
 
 - Direct FFmpeg Transcoding: To handle proprietary or compressed formats like .m4a and .mp3 on Windows, I integrated a subprocess call to the FFmpeg binary. This bypasses Python library limitations and ensures high-fidelity decoding.
+
+## How to Run
+
+- Install FFmpeg: Download FFmpeg and update the ffmpeg_path in src/asr_api.py to your local bin folder.
+
+- Download Model: Download the .nemo model file and update MODEL_PATH.
+
+- Start the Server:
+
+      python src/asr_api.py
+  
+- Test the Transcription:
+
+      python src/asr_client_test.py
