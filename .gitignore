@@ -207,32 +207,35 @@ marimo/_lsp/
 __marimo__/
 
 # --- Virtual Environments ---
-# Common names for the python virtual environment folder
 .venv/
 venv/
 env/
-ENV/
 
-# --- NVIDIA NeMo Specifics ---
-# Ignore locally downloaded .nemo model files and large checkpoints
+# --- NVIDIA NeMo & ML Large Files ---
+# Ignore the heavy .nemo models (users should download these manually)
 *.nemo
 nemo_experiments/
 checkpoints/
 
-# --- Audio/Temporary Processing ---
-# Ignore raw and processed audio files created during pipeline execution
-raw_*.wav
-raw_*.m4a
-fixed_*.wav
-clean_*.wav
-sanitized_*.wav
+# --- Audio Processing ---
+# Ignores the temporary files created by your asr_api logic
+raw_*
+clean_*
+temp_*
+sanitized_*
+*.wav
+*.mp3
+*.m4a
 
-# --- Python General ---
+# --- Python & IDE ---
 __pycache__/
 *.py[cod]
-*$py.class
-.ipynb_checkpoints/
+.env
+.vscode/
+.idea/
 
-# --- Search/Vector DB ---
-# Optional: if you don't want to commit your built index
+# --- Vector DB ---
+# Ignore local FAISS index files
 faiss_index/
+index.faiss
+index.pkl
