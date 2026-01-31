@@ -58,11 +58,13 @@ I chose the Indic-Conformer-600M-Multilingual hybrid model from AI4Bharat.
 
 ## Technical Implementation & Optimization
 
-- FastAPI Wrapper: I wrapped the model in a FastAPI server to create a modular microservice. This allows the ASR "engine" to run on a GPU-enabled backend while serving requests from any lightweight frontend.
+- FastAPI Wrapper: I wrapped the model in a FastAPI server to create a modular microservice, enabling the GPU-heavy ASR engine to serve requests from any lightweight frontend.
 
-- Universal Audio Normalization: ASR models are extremely sensitive to audio formats. I implemented a preprocessing layer using librosa and soundfile to ensure all inputs are converted to 16kHz Mono PCM-WAV before inference.
+- Mandatory FFmpeg Sanitization: I implemented a mandatory FFmpeg gate that re-encodes all incoming audio into 16kHz Mono PCM-WAV. This bypassed the "Illegal MPEG-Header" and sync errors I faced with standard Python loaders.
 
-- Direct FFmpeg Transcoding: To handle proprietary or compressed formats like .m4a and .mp3 on Windows, I integrated a subprocess call to the FFmpeg binary. This bypasses Python library limitations and ensures high-fidelity decoding.
+- Concurrency & Cleanup: I integrated unique request_id tracking to allow safe, concurrent processing and added a robust finally block to ensure all temporary audio files are cleared from disk.
+
+- Dependency & Environment Sync: I resolved critical ecosystem conflicts by pinning the environment to NumPy < 2.0 and specific Hugging Face Hub versions. Additionally, I integrated unique request-ID tracking to allow for safe, concurrent processing without file collisions.
 
 ## How to Run
 
@@ -171,3 +173,7 @@ This final module integrates all previous components into a seamless, voice-enab
 - NumPy 2.0 Breaking Changes: The release of NumPy 2.0 caused significant conflicts with NVIDIA NeMo and Numba, resulting in AttributeError and binary incompatibility issues.
   
     - Solution: Forced a downgrade to NumPy 1.26.4 (pip install "numpy<2") and pinned the version in requirements.txt to maintain compatibility with the NeMo ASR toolkit.
+
+- Nested Output Challenge: The hybrid model often returned transcriptions wrapped in nested lists (e.g., [['text']]) due to multiple decoding hypotheses, causing the translation module to crash.
+
+    - Solution: I implemented a recursive loop to "drill down" through nested lists, isolating the raw string and ensuring a clean, flat text input for the downstream API. 
