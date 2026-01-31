@@ -10,14 +10,19 @@ import nemo.collections.asr as nemo_asr
 
 app = FastAPI(title="VoxPedia ASR Service")
 
-# --- CONFIGURATION: UPDATE THESE PATHS ---
-# Replace the strings below with the actual paths on your local machine
-MODEL_PATH = r"ADD_YOUR_MODEL_FILEPATH_HERE" 
-FFMPEG_PATH = r"ADD_YOUR_FFMPEG_FILEPATH_HERE" 
 
+# 1. USER CONFIGURATION (PASTE YOUR PATHS HERE)
+
+# Path to your .nemo model file (e.g., D:\models\indicconformer.nemo)
+MODEL_PATH = r"PASTE_YOUR_MODEL_PATH_HERE"
+
+# Path to your ffmpeg.exe (e.g., C:\ffmpeg\bin\ffmpeg.exe)
+FFMPEG_PATH = r"PASTE_YOUR_FFMPEG_PATH_HERE"
+
+# Automatically selects GPU (cuda) if available, otherwise defaults to CPU
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Load Model
+# --- Model Initialization ---
 if os.path.exists(MODEL_PATH):
     print(f"Loading model on {device}: {MODEL_PATH}")
     model = nemo_asr.models.EncDecHybridRNNTCTCModel.restore_from(
@@ -25,47 +30,53 @@ if os.path.exists(MODEL_PATH):
         map_location=torch.device(device)
     )
     model.eval()
+    # Using CTC decoding strategy for efficient real-time transcription
     model.change_decoding_strategy(decoder_type='ctc')
 else:
-    print(f"Error: Model not found! Please update MODEL_PATH in the script.")
+    print(f"Error: Model not found at {MODEL_PATH}")
+
 
 @app.post("/transcribe")
-async def transcribe(lang: str = Query(..., description="Language code (e.g., 'hi', 'ta')"), 
-                      file: UploadFile = File(...)):
-    raw_path = f"raw_{file.filename}"
-    fixed_path = f"fixed_{file.filename}.wav"
-    convert_path = f"converted_{file.filename}.wav"
+async def transcribe(lang: str = Query(...), file: UploadFile = File(...)):
+    """
+    Endpoint to transcribe audio files.
+    - lang: The language ID (e.g., 'ta' for Tamil)
+    - file: The audio file (mp3, wav, m4a, etc.)
+    """
     
-    temp_files = [raw_path, fixed_path, convert_path]
+    # Generate unique temporary filenames to prevent request collisions
+    request_id = os.urandom(3).hex()
+    raw_path = f"raw_{request_id}_{file.filename}"
+    sanitized_path = f"clean_{request_id}.wav"
     
+    temp_files = [raw_path, sanitized_path]
+    
+    # Save the incoming uploaded file to disk
     with open(raw_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
     try:
-        # 1. Multi-Format Support (M4A to WAV) using FFmpeg
-        if raw_path.lower().endswith(".m4a"):
-            # Uses the FFMPEG_PATH defined above
-            subprocess.run([
-                FFMPEG_PATH, "-y", "-i", raw_path, 
-                "-ar", "16000", "-ac", "1", convert_path
-            ], check=True, capture_output=True)
-            process_target = convert_path
-        else:
-            process_target = raw_path
+        # --- 1. Audio Sanitization (Stream Processing) ---
+        # We use FFmpeg to force re-encoding into a clean 16kHz Mono PCM WAV.
+        # This fixes 'Illegal MPEG-Header' errors and synchronization issues.
+        print(f"Sanitizing audio stream: {raw_path}")
+        subprocess.run([
+            FFMPEG_PATH, "-y", "-i", raw_path, 
+            "-ar", "16000", "-ac", "1", "-f", "wav", sanitized_path
+        ], check=True, capture_output=True)
 
-        # 2. Universal Audio Normalization (16kHz Mono)
-        audio, sr = librosa.load(process_target, sr=16000, mono=True)
-        sf.write(fixed_path, audio, 16000)
+        # --- 2. Transcription Logic ---
+        # NeMo processes the sanitized WAV file
+        transcription = model.transcribe([sanitized_path], batch_size=1, language_id=lang)
 
-        # 3. Model Inference
-        transcription = model.transcribe([fixed_path], batch_size=1, language_id=lang)
-
-        # 4. Extract Text from Hybrid Output
+        # --- 3. Result Extraction ---
+        # Handles various return types from the NeMo hybrid model
         if isinstance(transcription, tuple):
             text = transcription[1] if transcription[1] else transcription[0]
         else:
             text = transcription
 
+        # Deep cleaning of the result list/string
         while isinstance(text, list) and len(text) > 0:
             text = text[0]
 
@@ -73,18 +84,24 @@ async def transcribe(lang: str = Query(..., description="Language code (e.g., 'h
         
         return {"status": "success", "transcription": final_text}
 
+    except subprocess.CalledProcessError as e:
+        print(f"FFmpeg Error: {e.stderr.decode()}")
+        return {"status": "error", "message": "Audio sanitization failed. Ensure FFmpeg path is correct."}
     except Exception as e:
-        print(f"Error in transcription: {str(e)}")
+        print(f"Transcription Error: {str(e)}")
         return {"status": "error", "message": f"Processing failed: {str(e)}"}
 
     finally:
-        # 5. Robust Cleanup of temporary files
+        # --- 4. Robust Cleanup ---
+        # Delete temporary files to free up disk space
         for path in temp_files:
             if os.path.exists(path):
                 try:
                     os.remove(path)
                 except Exception as cleanup_error:
-                    print(f"Cleanup error for {path}: {cleanup_error}")
+                    print(f"Could not delete {path}: {cleanup_error}")
+
 
 if __name__ == "__main__":
+    # Runs the server locally on port 8000
     uvicorn.run(app, host="0.0.0.0", port=8000)
